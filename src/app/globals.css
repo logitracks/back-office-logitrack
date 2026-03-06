@@ -1,26 +1,390 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #F97316;
+  --primary-hover: #EA6C0A;
+  --primary-light: #FEF3E2;
+  --accent: #FB923C;
+  --secondary: #0A1A2F;
+  --secondary-light: #112240;
+  --secondary-lighter: #1A3350;
+  --background: #F9FAFB;
+  --surface: #FFFFFF;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --success: #10B981;
+  --success-light: #D1FAE5;
+  --error: #EF4444;
+  --error-light: #FEE2E2;
+  --info: #3B82F6;
+  --info-light: #DBEAFE;
+  --warning: #F59E0B;
+  --warning-light: #FEF3C7;
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.10), 0 4px 10px rgba(0,0,0,0.06);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--border-light);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Mantine overrides */
+.mantine-AppShell-navbar {
+  background: var(--secondary) !important;
+  border-right: none !important;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15) !important;
+}
+
+.mantine-AppShell-header {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.mantine-AppShell-main {
+  background: var(--background) !important;
+}
+
+/* NavLink overrides for sidebar */
+.mantine-NavLink-root {
+  border-radius: var(--radius-sm) !important;
+  color: rgba(255,255,255,0.65) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  padding: 10px 14px !important;
+  margin-bottom: 2px !important;
+  transition: all 0.18s ease !important;
+}
+
+.mantine-NavLink-root:hover {
+  background: rgba(249,115,22,0.12) !important;
+  color: #FFFFFF !important;
+}
+
+.mantine-NavLink-root[data-active] {
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.35) !important;
+}
+
+.mantine-NavLink-label {
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 500 !important;
+}
+
+/* Button overrides */
+.mantine-Button-root {
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  transition: all 0.18s ease !important;
+}
+
+.mantine-Button-root[data-variant="filled"] {
+  background: var(--primary) !important;
+  border: none !important;
+}
+
+.mantine-Button-root[data-variant="filled"]:hover {
+  background: var(--primary-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(249,115,22,0.35) !important;
+}
+
+.mantine-Button-root[data-variant="light"] {
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+}
+
+.mantine-Button-root[data-variant="light"]:hover {
+  background: #FDE8C8 !important;
+}
+
+.mantine-Button-root[data-variant="default"] {
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+.mantine-Button-root[data-variant="default"]:hover {
+  background: var(--border-light) !important;
+  border-color: var(--text-muted) !important;
+}
+
+/* Input overrides */
+.mantine-TextInput-input,
+.mantine-PasswordInput-input,
+.mantine-NumberInput-input,
+.mantine-Select-input,
+.mantine-Textarea-input {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14px !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+  background: var(--surface) !important;
+  transition: all 0.18s ease !important;
+}
+
+.mantine-TextInput-input:focus,
+.mantine-PasswordInput-input:focus,
+.mantine-NumberInput-input:focus,
+.mantine-Select-input:focus,
+.mantine-Textarea-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.12) !important;
+}
+
+.mantine-InputWrapper-label {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* Paper/Card overrides */
+.mantine-Paper-root {
+  border-radius: var(--radius) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Table overrides */
+.mantine-Table-thead {
+  background: var(--secondary) !important;
+}
+
+.mantine-Table-th {
+  color: rgba(255,255,255,0.75) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  padding: 14px 16px !important;
+  white-space: nowrap;
+}
+
+.mantine-Table-td {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14px !important;
+  padding: 13px 16px !important;
+  color: var(--text-primary) !important;
+  vertical-align: middle !important;
+}
+
+.mantine-Table-tr[data-striped]:nth-of-type(even) td {
+  background: var(--border-light) !important;
+}
+
+.mantine-Table-tr:hover td {
+  background: #FEF3E2 !important;
+  transition: background 0.15s ease !important;
+}
+
+/* Badge overrides */
+.mantine-Badge-root {
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.06em !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+}
+
+/* Modal overrides */
+.mantine-Modal-header {
+  background: var(--secondary) !important;
+  border-radius: var(--radius) var(--radius) 0 0 !important;
+  padding: 20px 24px !important;
+}
+
+.mantine-Modal-title {
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  color: #FFFFFF !important;
+}
+
+.mantine-Modal-close {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+.mantine-Modal-close:hover {
+  background: rgba(255,255,255,0.1) !important;
+  color: #FFFFFF !important;
+}
+
+.mantine-Modal-body {
+  padding: 24px !important;
+  background: var(--surface) !important;
+}
+
+.mantine-Modal-content {
+  border-radius: var(--radius) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Menu overrides */
+.mantine-Menu-dropdown {
+  border-radius: var(--radius-sm) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-md) !important;
+  padding: 6px !important;
+}
+
+.mantine-Menu-item {
+  border-radius: 6px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--text-primary) !important;
+}
+
+.mantine-Menu-item:hover {
+  background: var(--border-light) !important;
+}
+
+.mantine-Menu-item[data-hovered][style*="color: red"],
+.mantine-Menu-item[data-hovered][data-color="red"] {
+  background: var(--error-light) !important;
+}
+
+/* ActionIcon overrides */
+.mantine-ActionIcon-root[data-variant="subtle"] {
+  color: var(--text-secondary) !important;
+  transition: all 0.15s ease !important;
+}
+
+.mantine-ActionIcon-root[data-variant="subtle"]:hover {
+  background: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Select dropdown */
+.mantine-Select-dropdown {
+  border-radius: var(--radius-sm) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.mantine-Select-option {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14px !important;
+}
+
+.mantine-Select-option[data-selected] {
+  background: var(--primary) !important;
+}
+
+/* Notification overrides */
+.mantine-Notification-root {
+  border-radius: var(--radius) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Timeline overrides */
+.mantine-Timeline-itemBullet {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Title overrides */
+.mantine-Title-root {
+  font-family: 'Syne', sans-serif !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Text overrides */
+.mantine-Text-root {
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+/* Loader */
+.mantine-Loader-root {
+  color: var(--primary) !important;
+}
+
+/* Confirm modal buttons */
+.mantine-Modal-root .mantine-Button-root[data-variant="filled"][data-color="red"],
+.mantine-ModalBase-root .mantine-Button-root[data-variant="filled"][data-color="red"] {
+  background: var(--error) !important;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-enter {
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+/* Responsive utility */
+@media (max-width: 768px) {
+  .mantine-Table-root {
+    font-size: 13px !important;
+  }
 }

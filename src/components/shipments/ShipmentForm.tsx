@@ -1,8 +1,11 @@
 'use client';
 
 import { useForm } from '@mantine/form';
-import { TextInput, Select, Button, Group, Paper, Stack, NumberInput, ActionIcon, Title } from '@mantine/core';
-import { IconTrash, IconPlus } from '@tabler/icons-react';
+import {
+  TextInput, Select, Button, Group, Paper, Stack,
+  NumberInput, ActionIcon, Title, Text, Box, Divider
+} from '@mantine/core';
+import { IconTrash, IconPlus, IconUser, IconMapPin, IconPackage, IconTruck } from '@tabler/icons-react';
 import { Shipment } from '@/types';
 import { useRouter } from 'next/navigation';
 import { useCreateShipment, useUpdateShipment } from '@/hooks/useShipments';
@@ -21,6 +24,32 @@ const statusOptions = [
   { value: 'CANCELLED', label: 'Annulé' },
 ];
 
+function FormSection({ title, icon: Icon, children }: { title: string; icon: React.ComponentType<{ size?: number; color?: string }>; children: React.ReactNode }) {
+  return (
+    <Box>
+      <Group gap={10} mb="md">
+        <Box
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            background: 'var(--secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon size={16} color="rgba(255,255,255,0.9)" />
+        </Box>
+        <Title order={5} style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, letterSpacing: '-0.01em' }}>
+          {title}
+        </Title>
+      </Group>
+      {children}
+    </Box>
+  );
+}
+
 export default function ShipmentForm({ initialValues, isEditing }: ShipmentFormProps) {
   const router = useRouter();
   const createMutation = useCreateShipment();
@@ -38,16 +67,16 @@ export default function ShipmentForm({ initialValues, isEditing }: ShipmentFormP
       products: initialValues?.products?.map(p => ({
         description: p.description,
         quantity: p.quantity,
-        weight: p.weight ?? '', // convertir null/undefined en chaîne vide pour l'input
+        weight: p.weight ?? '',
       })) || [{ description: '', quantity: 1, weight: '' }],
     },
     validate: {
-      senderName: (v) => (!v ? 'Requis' : null),
-      receiverName: (v) => (!v ? 'Requis' : null),
-      origin: (v) => (!v ? 'Requis' : null),
-      destination: (v) => (!v ? 'Requis' : null),
+      senderName: (v) => (!v ? 'Champ requis' : null),
+      receiverName: (v) => (!v ? 'Champ requis' : null),
+      origin: (v) => (!v ? 'Champ requis' : null),
+      destination: (v) => (!v ? 'Champ requis' : null),
       products: {
-        description: (v) => (!v ? 'Requis' : null),
+        description: (v) => (!v ? 'Champ requis' : null),
         quantity: (v) => (v < 1 ? 'Doit être ≥ 1' : null),
       },
     },
@@ -55,24 +84,20 @@ export default function ShipmentForm({ initialValues, isEditing }: ShipmentFormP
 
   const handleSubmit = async (values: typeof form.values) => {
     try {
-      // Préparer les produits : convertir les poids vides en null
       const products = values.products.map(p => ({
         description: p.description,
         quantity: p.quantity,
         weight: p.weight === '' ? null : Number(p.weight),
       }));
 
-      const payload = {
-        ...values,
-        products,
-      };
+      const payload = { ...values, products };
 
       if (isEditing && initialValues?.id) {
         await updateMutation.mutateAsync({ id: initialValues.id, ...payload });
-        notifications.show({ title: 'Succès', message: 'Expédition mise à jour', color: 'green' });
+        notifications.show({ title: 'Expédition mise à jour', message: 'Les modifications ont été enregistrées', color: 'green' });
       } else {
         await createMutation.mutateAsync(payload);
-        notifications.show({ title: 'Succès', message: 'Expédition créée', color: 'green' });
+        notifications.show({ title: 'Expédition créée', message: 'La nouvelle expédition a été ajoutée', color: 'green' });
       }
       router.push('/shipments');
     } catch (error: unknown) {
@@ -90,70 +115,181 @@ export default function ShipmentForm({ initialValues, isEditing }: ShipmentFormP
   };
 
   return (
-    <Paper withBorder p="md">
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack>
-          <Title order={4}>Expéditeur</Title>
-          <Group grow>
-            <TextInput label="Nom" {...form.getInputProps('senderName')} />
-            <TextInput label="Adresse" {...form.getInputProps('senderAddress')} />
-          </Group>
+    <Paper withBorder p={0} style={{ overflow: 'hidden' }}>
+      {/* Header */}
+      <Box
+        style={{
+          background: 'var(--secondary)',
+          padding: '20px 28px',
+        }}
+      >
+        <Text
+          fw={700}
+          style={{
+            fontFamily: "'Syne', sans-serif",
+            color: '#FFFFFF',
+            fontSize: 16,
+          }}
+        >
+          {isEditing ? 'Modifier l\'expédition' : 'Nouvelle expédition'}
+        </Text>
+        <Text size="12px" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          {isEditing ? 'Mettez à jour les informations de l\'expédition' : 'Remplissez les informations pour créer une nouvelle expédition'}
+        </Text>
+      </Box>
 
-          <Title order={4} mt="md">Destinataire</Title>
-          <Group grow>
-            <TextInput label="Nom" {...form.getInputProps('receiverName')} />
-            <TextInput label="Adresse" {...form.getInputProps('receiverAddress')} />
-          </Group>
+      <Box p="xl">
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack gap="xl">
+            {/* Expéditeur */}
+            <FormSection title="Informations Expéditeur" icon={IconUser}>
+              <Group grow gap="md">
+                <TextInput
+                  label="Nom complet"
+                  placeholder="Jean Dupont"
+                  required
+                  {...form.getInputProps('senderName')}
+                />
+                <TextInput
+                  label="Adresse"
+                  placeholder="123 rue de Paris, 75001 Paris"
+                  {...form.getInputProps('senderAddress')}
+                />
+              </Group>
+            </FormSection>
 
-          <Title order={4} mt="md">Trajet</Title>
-          <Group grow>
-            <TextInput label="Origine" {...form.getInputProps('origin')} />
-            <TextInput label="Destination" {...form.getInputProps('destination')} />
-          </Group>
+            <Divider />
 
-          {isEditing && (
-            <Select
-              label="Statut"
-              data={statusOptions}
-              {...form.getInputProps('status')}
-            />
-          )}
+            {/* Destinataire */}
+            <FormSection title="Informations Destinataire" icon={IconUser}>
+              <Group grow gap="md">
+                <TextInput
+                  label="Nom complet"
+                  placeholder="Marie Martin"
+                  required
+                  {...form.getInputProps('receiverName')}
+                />
+                <TextInput
+                  label="Adresse"
+                  placeholder="456 avenue Lyon, 69001 Lyon"
+                  {...form.getInputProps('receiverAddress')}
+                />
+              </Group>
+            </FormSection>
 
-          <Title order={4} mt="md">Produits</Title>
-          {form.values.products.map((_, index) => (
-            <Group key={index} align="flex-end" grow>
-              <TextInput
-                label="Description"
-                {...form.getInputProps(`products.${index}.description`)}
-              />
-              <NumberInput
-                label="Quantité"
-                min={1}
-                {...form.getInputProps(`products.${index}.quantity`)}
-              />
-              <NumberInput
-                label="Poids (kg)"
-                {...form.getInputProps(`products.${index}.weight`)}
-              />
-              <ActionIcon color="red" onClick={() => removeProduct(index)} disabled={form.values.products.length === 1}>
-                <IconTrash size={16} />
-              </ActionIcon>
+            <Divider />
+
+            {/* Trajet */}
+            <FormSection title="Trajet" icon={IconMapPin}>
+              <Group grow gap="md">
+                <TextInput
+                  label="Ville d'origine"
+                  placeholder="Paris"
+                  required
+                  leftSection={<IconMapPin size={14} color="var(--text-muted)" />}
+                  {...form.getInputProps('origin')}
+                />
+                <TextInput
+                  label="Ville de destination"
+                  placeholder="Lyon"
+                  required
+                  leftSection={<IconMapPin size={14} color="var(--text-muted)" />}
+                  {...form.getInputProps('destination')}
+                />
+                {isEditing && (
+                  <Select
+                    label="Statut"
+                    data={statusOptions}
+                    leftSection={<IconTruck size={14} color="var(--text-muted)" />}
+                    {...form.getInputProps('status')}
+                  />
+                )}
+              </Group>
+            </FormSection>
+
+            <Divider />
+
+            {/* Produits */}
+            <FormSection title="Produits" icon={IconPackage}>
+              <Stack gap="sm">
+                {form.values.products.map((_, index) => (
+                  <Paper
+                    key={index}
+                    withBorder
+                    p="md"
+                    style={{
+                      background: 'var(--background)',
+                      borderColor: 'var(--border)',
+                    }}
+                  >
+                    <Group justify="space-between" mb="xs">
+                      <Text size="12px" fw={700} c="dimmed" style={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Produit #{index + 1}
+                      </Text>
+                      <ActionIcon
+                        color="red"
+                        variant="light"
+                        size="sm"
+                        onClick={() => removeProduct(index)}
+                        disabled={form.values.products.length === 1}
+                      >
+                        <IconTrash size={13} />
+                      </ActionIcon>
+                    </Group>
+                    <Group grow gap="md">
+                      <TextInput
+                        label="Description"
+                        placeholder="Nom du produit"
+                        {...form.getInputProps(`products.${index}.description`)}
+                      />
+                      <NumberInput
+                        label="Quantité"
+                        min={1}
+                        {...form.getInputProps(`products.${index}.quantity`)}
+                      />
+                      <NumberInput
+                        label="Poids (kg)"
+                        placeholder="Optionnel"
+                        {...form.getInputProps(`products.${index}.weight`)}
+                      />
+                    </Group>
+                  </Paper>
+                ))}
+
+                <Button
+                  leftSection={<IconPlus size={15} />}
+                  variant="light"
+                  onClick={addProduct}
+                  size="sm"
+                  style={{ alignSelf: 'flex-start' }}
+                >
+                  Ajouter un produit
+                </Button>
+              </Stack>
+            </FormSection>
+
+            {/* Actions */}
+            <Divider />
+            <Group justify="flex-end" gap="md">
+              <Button
+                variant="default"
+                onClick={() => router.back()}
+                size="md"
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                size="md"
+                loading={createMutation.isPending || updateMutation.isPending}
+                leftSection={isEditing ? <IconTruck size={16} /> : <IconPlus size={16} />}
+              >
+                {isEditing ? 'Enregistrer les modifications' : 'Créer l\'expédition'}
+              </Button>
             </Group>
-          ))}
-          <Button leftSection={<IconPlus size={16} />} variant="light" onClick={addProduct}>
-            Ajouter un produit
-          </Button>
-
-          <Group justify="flex-end" mt="xl">
-            <Button variant="default" onClick={() => router.back()}>
-              Annuler
-            </Button>
-            <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {isEditing ? 'Mettre à jour' : 'Créer'}
-            </Button>
-          </Group>
-        </Stack>
-      </form>
+          </Stack>
+        </form>
+      </Box>
     </Paper>
   );
 }
